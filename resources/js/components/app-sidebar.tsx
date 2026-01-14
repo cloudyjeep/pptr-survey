@@ -5,6 +5,8 @@ import {
     Sidebar,
     SidebarContent,
     SidebarFooter,
+    SidebarGroup,
+    SidebarGroupLabel,
     SidebarHeader,
     SidebarMenu,
     SidebarMenuButton,
@@ -13,14 +15,42 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, PlusSquare, User } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Form Survey',
         href: dashboard(),
         icon: LayoutGrid,
+    },
+    // {
+    //     title: 'Surveys',
+    //     href: '/surveys',
+    //     icon: Folder,
+    // },
+];
+
+const maintenanceNavItems: NavItem[] = [
+    {
+        title: 'List Survey',
+        href: '/maintenance/surveys',
+        icon: Folder,
+    },
+    {
+        title: 'Users',
+        href: '/maintenance/users/list',
+        icon: User,
+    },
+    {
+        title: 'Survey Creator',
+        href: '/maintenance/surveys/create',
+        icon: PlusSquare,
+    },
+    {
+        title: 'Survey Rilis',
+        href: '/maintenance/surveys/rilis',
+        icon: BookOpen,
     },
 ];
 
@@ -36,6 +66,8 @@ const footerNavItems: NavItem[] = [
         icon: BookOpen,
     },
 ];
+
+
 
 export function AppSidebar() {
     return (
@@ -54,10 +86,28 @@ export function AppSidebar() {
 
             <SidebarContent>
                 <NavMain items={mainNavItems} />
+
+                {/* <SidebarGroup className="px-2 py-0">
+                    <SidebarGroupLabel>Maintenance</SidebarGroupLabel>
+                    <SidebarMenu>
+                        {maintenanceNavItems.map((item) => (
+                            <SidebarMenuItem key={item.title}>
+                                <SidebarMenuButton asChild>
+                                    <Link href={item.href} prefetch>
+                                        {item.icon && <item.icon />}
+                                        <span>{item.title}</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        ))}
+                    </SidebarMenu>
+                </SidebarGroup> */}
+
+                
             </SidebarContent>
 
             <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
+                {/* <NavFooter items={footerNavItems} className="mt-auto" /> */}
                 <NavUser />
             </SidebarFooter>
         </Sidebar>
