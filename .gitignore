@@ -1,4 +1,9 @@
 /.phpunit.cache
+/node_modules
+/public/storage
+/storage/*.key
+/storage/pail
+/vendor
 .DS_Store
 .env
 .env.backup
