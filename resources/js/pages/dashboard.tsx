@@ -908,7 +908,7 @@ const FormSurvey = ({ value }: any) => {
               max: 200_000,
             },
             {
-              people: [4, 5],
+              people: [4, 5, 6],
               min: 200_000,
               max: 350_000,
             },
