@@ -87,7 +87,7 @@ export default function Surveys({ surveyJson }: { surveyJson: any }) {
             <SurveyViewer
               json={value}
               lazyload={[
-                lazyLoadChoice('pilih_pelanggan', (keyword: string) => {
+                lazyLoadChoice('npa', (keyword: string) => {
                   return DataCustomer.filter((v) =>
                     `${v.npa} ${v.name} ${v.kelurahan} ${v.perumahan}`
                       .toLowerCase()
@@ -101,7 +101,7 @@ export default function Surveys({ surveyJson }: { surveyJson: any }) {
                 }),
               ]}
               onChange={(sender, options) => {
-                if (options.name === 'pilih_pelanggan') {
+                if (options.name === 'npa') {
                   const selected = DataCustomer.find(
                     (u) => String(u.npa) === options.value,
                   );
@@ -133,7 +133,7 @@ export default function Surveys({ surveyJson }: { surveyJson: any }) {
                       max: 200_000,
                     },
                     {
-                      people: [4, 5],
+                      people: [4, 5, 6],
                       min: 200_000,
                       max: 350_000,
                     },

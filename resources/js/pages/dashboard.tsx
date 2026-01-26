@@ -28,7 +28,6 @@ export default function Dashboard() {
           pages: [
             {
               name: 'page1',
-              title: 'Target Survey ',
               elements: [
                 {
                   type: 'radiogroup',
@@ -39,11 +38,10 @@ export default function Dashboard() {
                   choices: ['Non Pelanggan', 'Pelanggan'],
                 },
               ],
+              title: 'Target Survey ',
             },
             {
               name: 'page2',
-              visibleIf: "{Target} = 'Non Pelanggan'",
-              title: 'Data Non Pelanggan',
               elements: [
                 {
                   type: 'text',
@@ -63,17 +61,31 @@ export default function Dashboard() {
                 },
                 {
                   type: 'radiogroup',
-                  name: 'Area / Wilayah',
-                  title: 'Area / Wilayah',
+                  name: 'Kecamatan',
+                  title: 'Kecamatan',
+                  isRequired: true,
+                  choices: ['Bukit Raya', 'Marpoyan Damai'],
+                  showOtherItem: true,
+                  otherPlaceholder: 'Tuliskan kecamatan nya ...',
+                  otherText: 'Lainnya',
+                },
+                {
+                  type: 'radiogroup',
+                  name: 'Kelurahan',
                   isRequired: true,
                   choices: [
-                    'Bukit Raya - Tangkeran Selatan',
-                    'Marpoyan Damai - Tangkerang Barat',
-                    'Marpoyan Damai - Tangkerang Tengah',
+                    'Tangkerang Selatan',
+                    'Tangkerang Barat',
+                    'Tangkerang Tengah',
                   ],
                   showOtherItem: true,
-                  otherPlaceholder: 'Tuliskan area / wilayah nya',
+                  otherPlaceholder: 'Tuliskan kelurahan nya ...',
                   otherText: 'Lainnya',
+                },
+                {
+                  type: 'text',
+                  name: 'Perumahan',
+                  title: 'Perumahan',
                 },
                 {
                   type: 'comment',
@@ -88,18 +100,17 @@ export default function Dashboard() {
                   title: 'Titik Koordinat Lokasi',
                   description:
                     'Salin titik koordinat lokasi pelanggan dari Google Maps',
-                  isRequired: true,
                 },
               ],
+              visibleIf: "{Target} = 'Non Pelanggan'",
+              title: 'Data Non Pelanggan',
             },
             {
               name: 'page7',
-              visibleIf: "{Target} = 'Pelanggan'",
-              title: 'Data Pelanggan',
               elements: [
                 {
                   type: 'dropdown',
-                  name: 'pilih_pelanggan',
+                  name: 'npa',
                   visibleIf: "{Target} = 'Pelanggan'",
                   title: 'Pilih Pelanggan',
                   isRequired: true,
@@ -107,69 +118,77 @@ export default function Dashboard() {
                 {
                   type: 'expression',
                   name: 'question5',
-                  visibleIf: '{pilih_pelanggan} empty',
+                  visibleIf: '{npa} empty',
                   title: 'Silahkan pilih pelanggan terlebih dahulu',
                 },
                 {
-                  type: 'text',
-                  name: 'p_npa',
-                  visibleIf: '{pilih_pelanggan} notempty',
+                  type: 'expression',
+                  name: 'qqqqq',
+                  visibleIf: '{npa} notempty',
                   title: 'Nomor Pelanggan Aktif (NPA)',
-                  readOnly: true,
+                  description: '{p_npa}',
                 },
                 {
                   type: 'text',
                   name: 'p_name',
-                  visibleIf: '{pilih_pelanggan} notempty',
+                  visibleIf: '{npa} notempty',
                   title: 'Nama Pelanggan',
                 },
                 {
                   type: 'text',
                   name: 'p_telp',
-                  visibleIf: '{pilih_pelanggan} notempty',
+                  visibleIf: '{npa} notempty',
                   title: 'Kontak Telpon / Nomor Handphone',
                   inputType: 'tel',
                 },
                 {
                   type: 'expression',
                   name: 'question6',
-                  visibleIf: '{pilih_pelanggan} notempty',
+                  visibleIf: '{npa} notempty',
                   title: 'Area Wilayah',
                   description: '{p_kecamatan} - {p_kelurahan}\n{p_perumahan}',
                 },
                 {
                   type: 'text',
                   name: 'p_maps',
-                  visibleIf: '{pilih_pelanggan} notempty',
+                  visibleIf: '{npa} notempty',
                   title: 'Titik Koordinat Lokasi',
                 },
                 {
                   type: 'html',
                   name: 'question7',
                   visibleIf: '{p_maps} notempty ',
-                  html: '<a href="{p_map}" target="_blank" >\n📍 Buka di Google Maps\n</a>\n<div style="height:6px"></div>\n<iframe\n  width="100%"\n  height="300"\n  style="border:0; border-radius:8px"\n  loading="lazy"\n  referrerpolicy="no-referrer-when-downgrade"\n  src="{p_maps}&z=15&output=embed">\n</iframe>',
+                  html: '<a href="{p_maps}" target="_blank" >\n📍 Buka di Google Maps\n</a>\n<div style="height:6px"></div>\n<iframe\n  width="100%"\n  height="300"\n  style="border:0; border-radius:8px"\n  loading="lazy"\n  referrerpolicy="no-referrer-when-downgrade"\n  src="{p_maps}&z=15&output=embed">\n</iframe>',
                 },
                 {
                   type: 'comment',
                   name: 'p_alamat',
-                  visibleIf: '{pilih_pelanggan} notempty',
+                  visibleIf: '{npa} notempty',
                   title: 'Alamat',
                 },
               ],
+              visibleIf: "{Target} = 'Pelanggan'",
+              title: 'Data Pelanggan',
             },
             {
               name: 'page4',
-              title: 'Detail Informasi ',
               elements: [
                 {
                   type: 'radiogroup',
-                  name: 'question1',
+                  name: 'Tersambung Ke Instalasi Rumah ?',
                   title: 'Tersambung Ke Instalasi Rumah ?',
                   isRequired: true,
                   choices: [
                     'Tersambung Instalasi',
                     'Belum Tersambung Instalasi',
                   ],
+                },
+                {
+                  type: 'text',
+                  name: 'Nama Responden',
+                  visibleIf: "{Target} = 'Pelanggan'",
+                  title: 'Nama Responden',
+                  isRequired: true,
                 },
                 {
                   type: 'radiogroup',
@@ -187,7 +206,7 @@ export default function Dashboard() {
                 },
                 {
                   type: 'radiogroup',
-                  name: 'question3',
+                  name: 'Status Properti',
                   title: 'Status Properti',
                   isRequired: true,
                   choices: [
@@ -242,7 +261,6 @@ export default function Dashboard() {
                   type: 'dropdown',
                   name: 'Pekerjaan Suami',
                   title: 'Pekerjaan Suami',
-                  isRequired: true,
                   choices: [
                     'Aparatur Negara & Pemerintahan',
                     'Pegawai Negeri Sipil (PNS)',
@@ -344,7 +362,6 @@ export default function Dashboard() {
                   type: 'dropdown',
                   name: 'Pekerjaan Istri',
                   title: 'Pekerjaan Istri',
-                  isRequired: true,
                   choices: [
                     'Aparatur Negara & Pemerintahan',
                     'Pegawai Negeri Sipil (PNS)',
@@ -446,29 +463,29 @@ export default function Dashboard() {
                   type: 'text',
                   name: 'Jumlah Mobil',
                   title: 'Berapa Jumlah Mobil ?',
-                  isRequired: true,
                   inputType: 'number',
+                  min: 0,
                 },
                 {
                   type: 'text',
                   name: 'Jumlah Sepeda Motor',
                   title: 'Berapa Jumlah Sepeda Motor ?',
-                  isRequired: true,
                   inputType: 'number',
+                  min: 0,
                 },
                 {
                   type: 'text',
                   name: 'Jumlah Kamar Tidur',
                   title: 'Berapa Jumlah Kamar Tidur ?',
-                  isRequired: true,
                   inputType: 'number',
+                  min: 0,
                 },
                 {
                   type: 'text',
                   name: 'Jumlah Kamar Mandi',
                   title: 'Berapa Jumlah Kamar Mandi ?',
-                  isRequired: true,
                   inputType: 'number',
+                  min: 0,
                 },
                 {
                   type: 'boolean',
@@ -487,10 +504,10 @@ export default function Dashboard() {
                   labelFalse: 'Tidak',
                 },
               ],
+              title: 'Detail Informasi ',
             },
             {
               name: 'page5',
-              title: 'Pertanyaan Tentang Air',
               elements: [
                 {
                   type: 'expression',
@@ -509,8 +526,8 @@ export default function Dashboard() {
                   indent: 1,
                   title: 'Air Galon (Bermerek)',
                   description: 'Penggunaan dalam seminggu',
-                  isRequired: true,
                   inputType: 'number',
+                  min: 0,
                 },
                 {
                   type: 'text',
@@ -518,8 +535,8 @@ export default function Dashboard() {
                   indent: 1,
                   title: 'Air Galon (Isi Ulang)',
                   description: 'Penggunaan dalam seminggu',
-                  isRequired: true,
                   inputType: 'number',
+                  min: 0,
                 },
                 {
                   type: 'expression',
@@ -532,8 +549,8 @@ export default function Dashboard() {
                   indent: 1,
                   title: 'Air Galon (Bermerek)',
                   description: 'Penggunaan dalam seminggu',
-                  isRequired: true,
                   inputType: 'number',
+                  min: 0,
                 },
                 {
                   type: 'text',
@@ -541,8 +558,8 @@ export default function Dashboard() {
                   indent: 1,
                   title: 'Air Galon (Isi Ulang)',
                   description: 'Penggunaan dalam seminggu',
-                  isRequired: true,
                   inputType: 'number',
+                  min: 0,
                 },
                 {
                   type: 'expression',
@@ -555,8 +572,8 @@ export default function Dashboard() {
                   indent: 1,
                   title: 'Air Galon (Bermerek)',
                   description: 'Penggunaan dalam seminggu',
-                  isRequired: true,
                   inputType: 'number',
+                  min: 0,
                 },
                 {
                   type: 'text',
@@ -564,8 +581,8 @@ export default function Dashboard() {
                   indent: 1,
                   title: 'Air Galon (Isi Ulang)',
                   description: 'Penggunaan dalam seminggu',
-                  isRequired: true,
                   inputType: 'number',
+                  min: 0,
                 },
                 {
                   type: 'boolean',
@@ -645,10 +662,9 @@ export default function Dashboard() {
                   noneText: 'Tidak Ingin Menjawab',
                 },
                 {
-                  type: 'radiogroup',
+                  type: 'checkbox',
                   name: 'Apakah ada kekhawatiran Anda berlangganan PDAM ?',
                   title: 'Apakah ada kekhawatiran Anda berlangganan PDAM ?',
-                  isRequired: true,
                   choices: [
                     'Kualitas air',
                     'Kontinuitas aliran',
@@ -669,27 +685,24 @@ export default function Dashboard() {
                   otherText: 'Tidak',
                 },
                 {
-                  type: 'radiogroup',
+                  type: 'checkbox',
                   name: 'Apa yang di gunakan di kamar mandi ?',
                   title: '1. Apa yang di gunakan di kamar mandi ?',
-                  isRequired: true,
                   choices: ['Bak mandi', 'Shower'],
                 },
                 {
-                  type: 'radiogroup',
+                  type: 'checkbox',
                   name: 'Apa model mesin cuci yang di gunakan ?',
                   title: '2. Apa model mesin cuci yang di gunakan ?',
-                  isRequired: true,
                   choices: ['2 Tabung', 'Top Loading', 'Front Loading'],
                   showNoneItem: true,
                   noneText: 'Tidak Memakai',
                 },
                 {
-                  type: 'radiogroup',
+                  type: 'checkbox',
                   name: 'Apakah anda berencana menggunakan air pdam untuk ?',
                   title:
                     '3. Apakah anda berencana menggunakan air pdam untuk ?',
-                  isRequired: true,
                   choices: ['Cuci kendaraan', 'Menyiram tanaman'],
                   showOtherItem: true,
                   otherPlaceholder: 'Sebutkan…',
@@ -703,11 +716,10 @@ export default function Dashboard() {
                   placeholder: 'Tuliskan harapan nya (Jika ada)',
                 },
               ],
+              title: 'Pertanyaan Tentang Air',
             },
             {
               name: 'page6',
-              visibleIf: "{Target} = 'Non Pelanggan'",
-              title: 'Final Survey',
               elements: [
                 {
                   type: 'radiogroup',
@@ -747,11 +759,11 @@ export default function Dashboard() {
                   placeholder: 'Tuliskan alasan tidak berminat tersebut',
                 },
               ],
+              visibleIf: "{Target} = 'Non Pelanggan'",
+              title: 'Final Survey',
             },
             {
               name: 'page8',
-              visibleIf: "{Target} = 'Pelanggan'",
-              title: 'Final Survey',
               elements: [
                 {
                   type: 'radiogroup',
@@ -793,10 +805,11 @@ export default function Dashboard() {
                   placeholder: 'Tuliskan alasan tidak berminat tersebut',
                 },
               ],
+              visibleIf: "{Target} = 'Pelanggan'",
+              title: 'Final Survey',
             },
             {
               name: 'page3',
-              title: 'Foto dan Dokumentasi',
               elements: [
                 {
                   type: 'file',
@@ -826,6 +839,7 @@ export default function Dashboard() {
                   filePlaceholder: 'Pilih button dibawah untuk mengambil foto',
                 },
               ],
+              title: 'Foto dan Dokumentasi',
             },
           ],
           calculatedValues: [
@@ -862,7 +876,7 @@ const FormSurvey = ({ value }: any) => {
     <SurveyViewer
       json={value}
       lazyload={[
-        lazyLoadChoice('pilih_pelanggan', (keyword: string) => {
+        lazyLoadChoice('npa', (keyword: string) => {
           return DataCustomer.filter((v) =>
             `${v.npa} ${v.name} ${v.kelurahan} ${v.perumahan}`
               .toLowerCase()
@@ -876,7 +890,7 @@ const FormSurvey = ({ value }: any) => {
         }),
       ]}
       onChange={(sender, options) => {
-        if (options.name === 'pilih_pelanggan') {
+        if (options.name === 'npa') {
           const selected = DataCustomer.find(
             (u) => String(u.npa) === options.value,
           );

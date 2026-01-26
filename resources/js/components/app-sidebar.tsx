@@ -24,11 +24,21 @@ const mainNavItems: NavItem[] = [
         href: dashboard(),
         icon: LayoutGrid,
     },
-    // {
-    //     title: 'Surveys',
-    //     href: '/surveys',
-    //     icon: Folder,
-    // },
+    {
+        title: 'Surveys',
+        href: '/surveys',
+        icon: Folder,
+    },
+    {
+        title: 'Survey Creator',
+        href: '/maintenance/surveys/create',
+        icon: PlusSquare,
+    },
+    {
+        title: 'List Survey',
+        href: '/maintenance/surveys',
+        icon: Folder,
+    }
 ];
 
 const maintenanceNavItems: NavItem[] = [

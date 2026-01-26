@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\FileUpload;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -69,9 +70,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // API endpoints for SurveyJS integration
     Route::post('api/upload-image', [\App\Http\Controllers\Api\SurveyApiController::class, 'uploadImage']);
     Route::post('api/survey-responses', [\App\Http\Controllers\Api\SurveyApiController::class, 'storeSurveyResponse']);
-
-
+    
 });
 
+Route::get('api/files/{id}', [\App\Http\Controllers\Api\SurveyApiController::class, 'viewImage']);
 
 require __DIR__ . '/settings.php';

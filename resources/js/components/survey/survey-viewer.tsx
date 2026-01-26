@@ -44,7 +44,7 @@ export function SurveyViewer({
 
       model.onComplete.add(async (sender, options) => {
         setTimeout(() => {
-          location.reload();
+          // location.reload();
         }, 6000);
       });
 
@@ -60,27 +60,38 @@ export function SurveyViewer({
             const item = data[i];
 
             if (Array.isArray(item)) {
+              const files = [];
+
               for (let j = 0; j < item.length; j++) {
                 const val = item[j];
                 console.log(['check', val]);
+
                 if (
                   val &&
                   (val.type === 'image/png' || val.type?.startsWith('image/'))
                 ) {
                   try {
-                    const img = await uploadImage(val.content);
+                    const img = (await uploadImage(val.content)) as any;
                     if (img) {
-                      data[i][j] = {
-                        ...data[i][j],
-                        ...img,
-                        content: undefined,
-                      };
+                      files.push(`${location.origin}/api/files/${img.name}`);
+                      // data[i][j] = `${data[i][j]?.type}; ${url}`;
+                      // data[i][j] = `${location.origin}/api/files/${img.name} `;
+
+                      // data[i][j] = {
+                      //   ...data[i][j],
+                      //   name: img.name,
+                      //   content: undefined,
+                      // };
                     }
                   } catch (err) {
                     console.error('image upload failed', err);
                     throw err;
                   }
                 }
+              }
+
+              if (files?.length) {
+                data[i] = files;
               }
             }
           }
@@ -141,8 +152,10 @@ function checkLazyLoad(model: Model, lazyLoad: LazyLoadConfig[]) {
 
   for (let i = 0; i < lazyLoad.length; i++) {
     const q = model.getQuestionByName(lazyLoad[i].name);
-    q.choicesLazyLoadEnabled = true;
-    q.searchEnabled = true;
+    if (q) {
+      q.choicesLazyLoadEnabled = true;
+      q.searchEnabled = true;
+    }
   }
 }
 
