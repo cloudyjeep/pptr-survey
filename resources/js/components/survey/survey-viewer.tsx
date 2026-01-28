@@ -1,3 +1,5 @@
+import { SharedData } from '@/types';
+import { usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { useDeepCompareEffect } from 'react-use';
 import { CompletingEvent, Model, ValueChangedEvent } from 'survey-core';
@@ -15,15 +17,25 @@ export interface SurveyComponentProps {
   onCompleting?(sender: Model, options: CompletingEvent): void;
 }
 
-export function SurveyViewer({
+export function SurveyViewer(props: SurveyComponentProps) {
+  const s = useSurveyViewer(props);
+
+  if (s.model) {
+    return <Survey model={s.model} />;
+  }
+  return null;
+}
+
+export function useSurveyViewer({
   json,
-  values,
   lazyload,
   onChange,
 }: SurveyComponentProps) {
   const [survey, setSurvey] = useState<Model>();
   const { theme } = useSurveyThemes();
-  // const { auth } = usePage<SharedData>().props;
+  const { auth } = usePage<SharedData>().props;
+
+  // console.log({ auth }, formatDateTime(new Date()));
 
   useDeepCompareEffect(() => {
     if (json && typeof json == 'object') {
@@ -44,7 +56,7 @@ export function SurveyViewer({
 
       model.onComplete.add(async (sender, options) => {
         setTimeout(() => {
-          // location.reload();
+          location.reload();
         }, 6000);
       });
 
@@ -96,7 +108,12 @@ export function SurveyViewer({
             }
           }
 
-          const saved = await postSurveyResponse(data);
+          const saved = await postSurveyResponse({
+            surveyor_name: auth.user.name,
+            surveyor_email: auth.user.email,
+            survey_date: formatDateTime(new Date()),
+            ...data,
+          });
           // console.log('survey saved', saved);
           // console.log({ auth });
         } catch (err) {
@@ -114,11 +131,10 @@ export function SurveyViewer({
     }
   }, [json]);
 
-  if (survey) {
-    return <Survey model={survey} />;
-  }
-
-  return null;
+  return {
+    model: survey,
+    form: survey ? <Survey model={survey} /> : null,
+  };
 }
 
 // Lazy Load Item
@@ -127,6 +143,26 @@ type LazyLoadConfig = {
   name: string;
   onChoice(keyword: string): { value: any; text?: string }[];
 };
+
+function formatDateTime(date = new Date()) {
+  const pad = (n: any) => String(n).padStart(2, '0');
+
+  return [
+    date.getFullYear(),
+    '-',
+    pad(date.getMonth() + 1),
+    '-',
+    pad(date.getDate()),
+    ' ',
+    pad(date.getHours()),
+    ':',
+    pad(date.getMinutes()),
+    ':',
+    pad(date.getSeconds()),
+  ].join('');
+}
+
+formatDateTime();
 
 export function lazyLoadChoice(
   name: string,
