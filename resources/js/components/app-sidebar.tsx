@@ -22,9 +22,9 @@ function navItem(title: string, href: any, icon?: any, devOnly?: boolean) {
 
 const mainNavItems: NavItem[] = [
   navItem('Form Survey', dashboard(), LayoutGrid),
-//   navItem('Surveys', '/surveys', Folder, true),
-//   navItem('Survey Creator', '/maintenance/surveys/create', PlusSquare, true),
   navItem('List Survey', '/maintenance/surveys', Folder),
+  //   navItem('Surveys', '/surveys', Folder, true),
+  navItem('Survey Creator', '/maintenance/surveys/create', PlusSquare, true),
 ].filter((f) => f);
 
 const maintenanceNavItems: NavItem[] = [

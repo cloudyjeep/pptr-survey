@@ -1,11 +1,15 @@
 import { SharedData } from '@/types';
 import { usePage } from '@inertiajs/react';
-import { useState } from 'react';
-import { useDeepCompareEffect } from 'react-use';
+import { useCallback, useEffect, useState } from 'react';
+import { useDeepCompareEffect, useList } from 'react-use';
 import { CompletingEvent, Model, ValueChangedEvent } from 'survey-core';
 import 'survey-core/survey-core.min.css';
 import { Survey } from 'survey-react-ui';
 import { loadThemes, useSurveyThemes } from './survey-themes';
+import { Spinner } from '../ui/spinner';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
+import { cn } from '@/lib/utils';
+import { Button } from '../ui/button';
 
 loadThemes();
 
@@ -17,13 +21,85 @@ export interface SurveyComponentProps {
   onCompleting?(sender: Model, options: CompletingEvent): void;
 }
 
+
+const useProgressLoader = () => {
+  const [open, setOpen] = useState(false)
+  const [complete, setComplete] = useState(false)
+  const [task, setTask] = useList<{
+    key: string | number,
+    title?: string
+    loading?: boolean,
+    err?: string
+  }>()
+
+  const count = task?.length
+  const taskDone = count && task.filter((v) => !v.loading).length == task.length
+
+  useEffect(() => {
+    if (taskDone) {
+      const t = setTimeout(() => setComplete(true), 1000)
+      return () => {
+        clearTimeout(t)
+      }
+    }
+  }, [task])
+
+  console.log({ task });
+
+
+  const loadingComponent = task?.length ?
+    <Dialog open={open}
+      onOpenChange={(isOpened) => {
+        if (complete) setOpen(isOpened)
+      }} >
+      <DialogContent  >
+        <DialogHeader>
+          <DialogTitle>{"Sending data"}</DialogTitle>
+          <div className='flex-col gap-0 pt-1.5 '>
+            {task.map(({ title, loading, err }, i) => {
+              return <div key={i} className={cn('flex pt-1', err ? "text-red-500" : loading ?
+                "text-yellow-400" : "text-green-600")}>
+                <h3 className={cn('flex-auto text-sm ', loading ? 'italic' : "font-medium")}>
+                  {loading ? title + "..." : title}
+                </h3>
+                <div className='font-light text-xs p-0.5 '>{loading ?
+                  <Spinner /> : err ? "FAIL" : "DONE"
+                }</div>
+              </div>
+            })}
+          </div>
+
+          {complete && <Button className='mt-5 self-baseline' type='button' variant="outline" size="sm"
+            onClick={() => setOpen(false)}
+          >Finish</Button>}
+        </DialogHeader>
+      </DialogContent>
+    </Dialog >
+    : null
+
+  const pushTask = useCallback((title: string) => {
+    const key = Math.random()
+    setTask.push({ key, title, loading: true })
+    setOpen(true)
+    return {
+      finish(err?: string) {
+        setTask.set(task =>
+          task.map(v => v.key == key ? { ...v, loading: false, err } : v)
+        )
+      }
+    }
+  }, [setTask.push, setTask.set, setOpen])
+
+  return {
+    pushTask,
+    setComplete,
+    loadingComponent
+  }
+}
+
 export function SurveyViewer(props: SurveyComponentProps) {
   const s = useSurveyViewer(props);
-
-  if (s.model) {
-    return <Survey model={s.model} />;
-  }
-  return null;
+  return s.form
 }
 
 export function useSurveyViewer({
@@ -34,6 +110,7 @@ export function useSurveyViewer({
   const [survey, setSurvey] = useState<Model>();
   const { theme } = useSurveyThemes();
   const { auth } = usePage<SharedData>().props;
+  const { loadingComponent, pushTask, setComplete } = useProgressLoader()
 
   // console.log({ auth }, formatDateTime(new Date()));
 
@@ -61,6 +138,8 @@ export function useSurveyViewer({
       });
 
       model.onCompleting.add(async (sender, options) => {
+        const taskResult = pushTask("Sending survey result:")
+
         try {
           console.log('sender:', sender);
           console.log('options:', options);
@@ -72,6 +151,7 @@ export function useSurveyViewer({
             const item = data[i];
 
             if (Array.isArray(item)) {
+
               const files = [];
 
               for (let j = 0; j < item.length; j++) {
@@ -82,25 +162,27 @@ export function useSurveyViewer({
                   val &&
                   (val.type === 'image/png' || val.type?.startsWith('image/'))
                 ) {
+                  const taskImages = pushTask(` - Upload: ${i} (${j + 1})`)
+
                   try {
                     const img = (await uploadImage(val.content)) as any;
+                    // const img: any = {};
+                    // await delay(1000)
+
                     if (img) {
                       files.push(`${location.origin}/api/files/${img.name}`);
-                      // data[i][j] = `${data[i][j]?.type}; ${url}`;
-                      // data[i][j] = `${location.origin}/api/files/${img.name} `;
-
-                      // data[i][j] = {
-                      //   ...data[i][j],
-                      //   name: img.name,
-                      //   content: undefined,
-                      // };
                     }
+                    taskImages.finish()
                   } catch (err) {
-                    console.error('image upload failed', err);
-                    throw err;
+                    taskImages.finish("Gagal upload file")
+                    // console.error('image upload failed', err);
+                    // throw err;
                   }
+
                 }
               }
+
+
 
               if (files?.length) {
                 data[i] = files;
@@ -108,18 +190,27 @@ export function useSurveyViewer({
             }
           }
 
+
+          const taskStoreDB = pushTask(" - Store to database")
           const saved = await postSurveyResponse({
             surveyor_name: auth.user.name,
             surveyor_email: auth.user.email,
             survey_date: formatDateTime(new Date()),
             ...data,
           });
-          // console.log('survey saved', saved);
-          // console.log({ auth });
+
+          taskStoreDB.finish()
+
+
+          taskResult.finish()
+
         } catch (err) {
+          taskResult.finish("Failed to send data")
           // console.error('onCompleting error', err);
-          throw err;
+          // throw err;
         }
+
+        setComplete(true)
       });
 
       //   model.data = {
@@ -131,9 +222,15 @@ export function useSurveyViewer({
     }
   }, [json]);
 
+
   return {
     model: survey,
-    form: survey ? <Survey model={survey} /> : null,
+    form: survey ?
+      <>
+        {loadingComponent}
+        <Survey model={survey} />
+      </>
+      : null,
   };
 }
 

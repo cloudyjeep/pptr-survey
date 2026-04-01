@@ -61,7 +61,8 @@ class SurveyApiController extends Controller
             'created_by' => $request->user()?->id,
         ]);
 
-        $sheet = trim(strtolower($data["Target"])) === "pelanggan" ? "Pelanggan" : "Non Pelanggan";
+        // $sheet = trim(strtolower($data["Target"])) === "pelanggan" ? "Pelanggan" : "Non Pelanggan";
+        $sheet = trim($data["Target"]);
 
         $spreadsheet = $this->storeToSpreadsheet(
             '1JRVXPeTmY5zf4iVZfWylp5Y33CdSoz78BlVAWr8mV1I',
