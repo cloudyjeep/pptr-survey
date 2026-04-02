@@ -8,7 +8,7 @@ import { Survey } from 'survey-react-ui';
 import { loadThemes, useSurveyThemes } from './survey-themes';
 import { Spinner } from '../ui/spinner';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
-import { cn } from '@/lib/utils';
+import { cn, useListStorage } from '@/lib/utils';
 import { Button } from '../ui/button';
 
 loadThemes();
@@ -112,6 +112,11 @@ export function useSurveyViewer({
   const { auth } = usePage<SharedData>().props;
   const { loadingComponent, pushTask, setComplete } = useProgressLoader()
 
+  const { read, append } = useListStorage<{
+    id: number,
+    data: any
+  }>("survey-unsent")
+
   // console.log({ auth }, formatDateTime(new Date()));
 
   useDeepCompareEffect(() => {
@@ -139,6 +144,11 @@ export function useSurveyViewer({
 
       model.onCompleting.add(async (sender, options) => {
         const taskResult = pushTask("Sending survey result:")
+        // localStorage.setItem("")
+        // localStorage.getItem("unsent")
+
+        const id = Math.random()
+        append({ id, data: sender.data })
 
         try {
           console.log('sender:', sender);
@@ -165,9 +175,9 @@ export function useSurveyViewer({
                   const taskImages = pushTask(` - Upload: ${i} (${j + 1})`)
 
                   try {
-                    const img = (await uploadImage(val.content)) as any;
-                    // const img: any = {};
-                    // await delay(1000)
+                    // const img = (await uploadImage(val.content)) as any;
+                    const img: any = {};
+                    await delay(1000)
 
                     if (img) {
                       files.push(`${location.origin}/api/files/${img.name}`);
@@ -192,17 +202,18 @@ export function useSurveyViewer({
 
 
           const taskStoreDB = pushTask(" - Store to database")
-          const saved = await postSurveyResponse({
-            surveyor_name: auth.user.name,
-            surveyor_email: auth.user.email,
-            survey_date: formatDateTime(new Date()),
-            ...data,
-          });
+          // const saved = await postSurveyResponse({
+          //   surveyor_name: auth.user.name,
+          //   surveyor_email: auth.user.email,
+          //   survey_date: formatDateTime(new Date()),
+          //   ...data,
+          // });
+          await delay(1000)
+
 
           taskStoreDB.finish()
-
-
           taskResult.finish()
+          
 
         } catch (err) {
           taskResult.finish("Failed to send data")
